@@ -22,11 +22,17 @@ public class GraphFactory {
         return graph;
     }
 
+
     public AGraph<String> generateSwitchingGraph(AGraph<String> graph, int Q) {
         List<Integer> degreeSequence = graph.getDegreeSequence();
         int counter=0;
         int failures = 0;
         List<Edge<String>> edges = graph.getEdges();
+        Set<Edge<String>> edgeSet = new HashSet<>();
+        edgeSet.addAll(edges);
+        edges.clear();
+        edges.addAll(edgeSet);
+
         for (int i = 0; i < Q * graph.getnEdges(); i++) {
             if(++counter%100==0) System.out.println(counter + " " + failures);
 
@@ -56,20 +62,20 @@ public class GraphFactory {
                 continue;
             }
 
-            graph.removeEdge(e1);
+            /*graph.removeEdge(e1);
             graph.removeEdge(e2);
 
             graph.addEdge(vertices.get(0), vertices.get(3));
-            graph.addEdge(vertices.get(1), vertices.get(2));
+            graph.addEdge(vertices.get(1), vertices.get(2));*/
 
-            /*edges.remove(e1);
-            edges.remove(e2);
-            edges.remove(new Edge(e1.getEnd(),e1.getStart()));
-            edges.remove(new Edge(e1.getStart(),e1.getEnd()));
+            edges.remove(rand1);
+            edges.remove(rand2);
+            /*edges.remove(new Edge(e1.getEnd(),e1.getStart()));
+            edges.remove(new Edge(e1.getStart(),e1.getEnd()));*/
             edges.add(new Edge(vertices.get(0),vertices.get(3)));
             edges.add(new Edge(vertices.get(1),vertices.get(2)));
-            edges.add(new Edge(vertices.get(3),vertices.get(0)));
-            edges.add(new Edge(vertices.get(2),vertices.get(1)));*/
+            //edges.add(new Edge(vertices.get(3),vertices.get(0)));
+            //edges.add(new Edge(vertices.get(2),vertices.get(1)));
 
         }
 

@@ -29,7 +29,7 @@ public class MapListGraph<T> extends AGraph<T> {
 
     private Map<T,List<T>> sortedMap;
 
-    Comparator<Map.Entry<T, List<T>>> entryComparator = (o1, o2) -> (-o1.getValue().size() + o2.getValue().size());
+    Comparator<Map.Entry<T, List<T>>> entryComparator = (o1, o2) -> (o1.getValue().size() - o2.getValue().size());
 
     public Map<T, List<T>> sortByValue(Comparator<Map.Entry<T, List<T>>> entryComparator)
     {
@@ -84,10 +84,10 @@ public class MapListGraph<T> extends AGraph<T> {
             }
             meanLocalClustering += (double) connectedNeighbours / neighbourPairs;
         }
-        return meanLocalClustering;
+        return meanLocalClustering/getnVertices();
     }
 
-    public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map)
+    /*public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map)
     {
         List<Map.Entry<K, V>> list =
                 new LinkedList<>( map.entrySet() );
@@ -106,7 +106,7 @@ public class MapListGraph<T> extends AGraph<T> {
             result.put( entry.getKey(), entry.getValue() );
         }
         return result;
-    }
+    }*/
 
 
 
