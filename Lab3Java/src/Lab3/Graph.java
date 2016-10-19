@@ -38,7 +38,7 @@ public class Graph<T> {
 
     public String summaryDegreeSequences() {
 
-        return String.format("%6d %6d %5.1f %8.1e", vertices, edges, meanDegree, networkDensity);
+        return String.format("%6d & %6d & %5.1f & %8.1e", vertices, edges, meanDegree, networkDensity);
     }
 
     private Map<T, List<T>> listAdjacencies() {

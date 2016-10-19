@@ -18,10 +18,10 @@ public class Main {
 
 
     public void run() {
-        //readLanguages();
+        readLanguages();
         //timerTestMLC();
 
-        Timer timer= new Timer();
+        /*Timer timer= new Timer();
         timer.start();
 
         AGraph<String> graph = readG("data/Basque_syntactic_dependency_network.txt");
@@ -34,7 +34,7 @@ public class Main {
 
         System.out.println(graph.meanLocalClustering());
 
-        System.out.println(graph.getDegreeSequence());
+        System.out.println(graph.getDegreeSequence());*/
 
     }
 
