@@ -18,23 +18,41 @@ public class Main {
 
 
     public void run() {
-        readLanguages();
+        //readLanguages();
         //timerTestMLC();
 
-        /*Timer timer= new Timer();
+        Timer timer= new Timer();
         timer.start();
 
-        AGraph<String> graph = readG("data/Basque_syntactic_dependency_network.txt");
-        System.out.println(graph.getDegreeSequence());
-        System.out.println(graph.meanLocalClustering());
+        /*AGraph<String> graph = readG("data/Basque_syntactic_dependency_network.txt");
+        System.out.println("MLC" +  graph.meanLocalClustering());
+        //System.out.println("Edges " + graph.getEdges().size() + " " + graph.getEdges());
+        List<Integer> degSeq = graph.getDegreeSequence();
+        System.out.println(degSeq);
 
         GraphFactory factory = new GraphFactory();
-        factory.generateSwitchingGraph(graph,3);
-        System.out.println(timer.delta()); timer.start();
+        factory.generateSwitchingGraph(graph, 3);
+        System.out.println("T" + timer.delta()); timer.start();
+        System.out.println(degSeq.equals(graph.getDegreeSequence()));
+        System.out.println(graph.getDegreeSequence());
+        System.out.println("MLC" + graph.meanLocalClustering());*/
 
-        System.out.println(graph.meanLocalClustering());
 
-        System.out.println(graph.getDegreeSequence());*/
+        timer.start();
+        AGraph<String> dGraph = readD("data/Turkish_syntactic_dependency_network.txt");
+        System.out.println("T" + timer.delta()); timer.start();
+        System.out.println("*MLC" + dGraph.meanLocalClustering());
+        System.out.println("T" + timer.delta()); timer.start();
+        List<Integer> degreeSequence = dGraph.getDegreeSequence();
+        //System.out.println("Edges " + dGraph.getEdges().size() + " " + dGraph.getEdges());
+
+        DirectedGraphFactory dFac = new DirectedGraphFactory();
+        dFac.generateSwitchingGraph(dGraph,8);
+        System.out.println("T" + timer.delta()); timer.start();
+        System.out.println(degreeSequence.equals(dGraph.getDegreeSequence()));
+
+        System.out.println("MLC" + dGraph.meanLocalClustering());
+
 
     }
 
@@ -117,7 +135,34 @@ public class Main {
             nVertices = Integer.parseInt(numbers[0]);
             nEdges = Integer.parseInt(numbers[1]);
 
-            graph = new MapListGraph<>(nVertices, nEdges);
+            graph = new MapGraph<>(nVertices, nEdges);
+
+
+            line = br.readLine();
+            while (line != null) {
+                String[] words = line.split("\\s+");
+                graph.addEdge(words[0], words[1]);
+                line = br.readLine();
+            }
+
+        } catch (IOException io) {
+            System.out.println("IOException");
+            throw (new RuntimeException(io));
+        }
+
+        return graph;
+    }
+
+    public AGraph<String> readD(String filename) {
+        AGraph<String> graph;
+        int nVertices, nEdges;
+        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
+            String line = br.readLine();
+            String[] numbers = line.split("\\s+");
+            nVertices = Integer.parseInt(numbers[0]);
+            nEdges = Integer.parseInt(numbers[1]);
+
+            graph = new DirectedEdgeGraph<>(nVertices, nEdges);
 
 
             line = br.readLine();

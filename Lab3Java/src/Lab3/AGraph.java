@@ -1,6 +1,5 @@
 package Lab3;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -14,7 +13,7 @@ public abstract class AGraph<T> {
     private double meanDegree;
     private double networkDensity;
 
-    protected List<Edge<T>> edges = new ArrayList<>();
+    protected Collection<Edge<T>> edges;
 
     public AGraph(int nVertices, int nEdges) {
         this.nVertices = nVertices;
@@ -39,7 +38,7 @@ public abstract class AGraph<T> {
         return networkDensity;
     }
 
-    public List<Edge<T>> getEdges() {
+    public Collection<Edge<T>> getEdges() {
         return edges;
     }
 
@@ -54,5 +53,9 @@ public abstract class AGraph<T> {
     abstract public List<T> vertexList();
 
     abstract void removeEdge(Edge e);
+
+    public void addEdgeSpecial(T vertex, T neighbour){}
+    public void removeEdgeSpecial(Edge e){}
+
 
 }

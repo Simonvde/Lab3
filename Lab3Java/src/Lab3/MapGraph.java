@@ -5,14 +5,15 @@ import java.util.*;
 /**
  * Created by Simon Van den Eynde
  */
-public class MapListGraph<T> extends AGraph<T> {
+public class MapGraph<T> extends AGraph<T> {
     private Map<T, List<T>> adjacencies = new HashMap<>();
 
     private double meanLocalClustering = 0;
     private List<Integer> degreeSequence;
 
-    public MapListGraph(int nVertices, int nEdges) {
+    public MapGraph(int nVertices, int nEdges) {
         super(nVertices, nEdges);
+        edges = new ArrayList<>();
     }
 
     public List<Integer> getDegreeSequence() {

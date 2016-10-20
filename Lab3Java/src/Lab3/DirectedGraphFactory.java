@@ -6,7 +6,8 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * Created by Simon Van den Eynde
  */
-public class GraphFactory {
+public class DirectedGraphFactory {
+
     public AGraph<Integer> generateErdosRenyiGraph(int vertices, int edges) {
         AGraph<Integer> graph = new MapGraph<>(vertices, edges);
         int i = 0;
@@ -29,15 +30,12 @@ public class GraphFactory {
         int failures = 0;
         List<Edge<String>> edges = new ArrayList<>();
         edges.addAll(graph.getEdges());
-        /*Set<Edge<String>> edgeSet = new HashSet<>();
-        edgeSet.addAll(edges);
-        edges.clear();
-        edges.addAll(edgeSet);*/
 
         for (int i = 0; i < Q * graph.getnEdges(); i++) {
-            if(++counter%100==0) System.out.println(counter + " " + failures);
+            //if(++counter%100==0) System.out.println(counter + " " + failures);
 
-
+            int direction1 = ThreadLocalRandom.current().nextInt(0, 2);
+            int direction2 = ThreadLocalRandom.current().nextInt(0, 2);
             int rand1 = ThreadLocalRandom.current().nextInt(0, graph.getnEdges());
             int rand2 = ThreadLocalRandom.current().nextInt(0, graph.getnEdges());
 
@@ -45,10 +43,20 @@ public class GraphFactory {
             Edge<String> e2 = edges.get(rand2);
 
             List<String> vertices = new ArrayList<>();
-            vertices.add(e1.getStart());
-            vertices.add(e1.getEnd());
-            vertices.add(e2.getStart());
-            vertices.add(e2.getEnd());
+            if(direction1==0) {
+                vertices.add(e1.getStart());
+                vertices.add(e1.getEnd());
+            } else{
+                vertices.add(e1.getEnd());
+                vertices.add(e1.getStart());
+            }
+            if(direction2==0) {
+                vertices.add(e2.getStart());
+                vertices.add(e2.getEnd());
+            } else{
+                vertices.add(e2.getEnd());
+                vertices.add(e2.getStart());
+            }
 
 
             Set<String> s = new HashSet<>(vertices);
@@ -63,26 +71,25 @@ public class GraphFactory {
                 continue;
             }
 
-            graph.removeEdgeSpecial(e1);
-            graph.removeEdgeSpecial(e2);
+            graph.removeEdge(e1);
+            graph.removeEdge(e2);
 
-            graph.addEdgeSpecial(vertices.get(0), vertices.get(3));
-            graph.addEdgeSpecial(vertices.get(1), vertices.get(2));
+            edges.remove(Math.max(rand1,rand2));
+            edges.remove(Math.min(rand1,rand2));
 
-            /*edges.remove(rand1);
-            edges.remove(rand2);
-            edges.remove(new Edge(e1.getEnd(),e1.getStart()));
-            edges.remove(new Edge(e1.getStart(),e1.getEnd()));
+            graph.addEdge(vertices.get(0), vertices.get(3));
+            graph.addEdge(vertices.get(1), vertices.get(2));
+
             edges.add(new Edge(vertices.get(0),vertices.get(3)));
             edges.add(new Edge(vertices.get(1),vertices.get(2)));
+
+
             //edges.add(new Edge(vertices.get(3),vertices.get(0)));
             //edges.add(new Edge(vertices.get(2),vertices.get(1)));
-                */
         }
 
 
         System.out.println(Q * graph.getnEdges() + " " + failures);
         return graph;
     }
-
 }
