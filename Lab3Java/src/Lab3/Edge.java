@@ -22,7 +22,7 @@ public class Edge<T> {
 
     @Override
     public String toString() {
-        return "{" +start + " "+ end + "}";
+        return "{" + start + " " + end + "}";
     }
 
     @Override
@@ -32,9 +32,7 @@ public class Edge<T> {
 
         Edge<?> edge = (Edge<?>) o;
 
-        if (start.equals(edge.start) && end.equals(edge.end)) return true;
-        if(start.equals(edge.end) && end.equals(edge.start)) return true;
-        return false;
+        return start.equals(edge.start) && end.equals(edge.end) || start.equals(edge.end) && end.equals(edge.start);
 
     }
 

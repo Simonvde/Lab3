@@ -1,68 +1,109 @@
 package Lab3;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
-/**
+/*
  * Created by Simon Van den Eynde
  */
+
+//T should be a primitive type!! (especially: Copy should be a deep copy).
 public class Graph<T> {
-    int vertices;
-    int edges;
-    private double meanDegree;
-    private double networkDensity;
-    Map<T, Set<T>> adjacencies;
-    private Map<T, List<T>> listAdjacencies;
+    private Map<T, Set<T>> adjacencies = new LinkedHashMap<>();
 
-    private double meanLocalClustering = 0;
-    private List<Integer> degreeSequence;
+    private Set<Edge<T>> edges;
 
-    public Graph(int vertices, int edges, Map<T, Set<T>> adjacencies) {
-        this.vertices = vertices;
-        this.edges = edges;
-        this.adjacencies = adjacencies;
-        meanDegree = (double) 2 * edges / vertices;
-        networkDensity = (double) 2 * edges / (vertices * (vertices - 1));
+    private Graph() {
+        edges = new HashSet<>();
     }
 
-    public List<Integer> degreeSequence() {
-        if (degreeSequence != null) return degreeSequence;
+    public Graph(Set<Edge<T>> edges) {
+        this.edges = edges;
+        for (Edge<T> e : edges) {
+            addEdge(e.getStart(), e.getEnd());
+        }
+    }
 
+    private Graph(Set<Edge<T>> edges, Map<T, Set<T>> adjacencies) {
+        this.edges = new HashSet<>(edges);
+        this.adjacencies = new LinkedHashMap<>();
+        for (Map.Entry<T, Set<T>> entries : adjacencies.entrySet()) {
+            this.adjacencies.put(entries.getKey(), new HashSet<>(entries.getValue()));
+        }
+    }
+
+    public int getnVertices() {
+        return adjacencies.size();
+    }
+
+    public int getnEdges() {
+        return edges.size();
+    }
+
+    public double getMeanDegree() {
+        return (double) 2 * getnEdges() / getnVertices();
+    }
+
+    public double getNetworkDensity() {
+        return (double) 2 * getnEdges() / (getnVertices() * (getnVertices() - 1));
+    }
+
+    public Set<Edge<T>> getEdges() {
+        return edges;
+    }
+
+    public List<Integer> getDegreeSequence() {
         List<Integer> degreeSeq = new ArrayList<>();
-        for (Set<T> neighbours : adjacencies.values()) {
+        for (Collection<T> neighbours : adjacencies.values()) {
             degreeSeq.add(neighbours.size());
         }
-        degreeSeq.sort(Comparator.naturalOrder());
-        degreeSequence = degreeSeq;
-        return degreeSequence;
+        //degreeSeq.sort(Comparator.naturalOrder());
+        return degreeSeq;
     }
 
-    public String summaryDegreeSequences() {
+    private Map<T, Set<T>> sortedMap;
 
-        return String.format("%6d & %6d & %5.1f & %8.1e", vertices, edges, meanDegree, networkDensity);
-    }
+    Comparator<Map.Entry<T, Set<T>>> entryComparator = (o1, o2) -> (o1.getValue().size() - o2.getValue().size());
 
-    private Map<T, List<T>> listAdjacencies() {
-        if (listAdjacencies != null) return listAdjacencies;
-        listAdjacencies = new HashMap<>();
-        for (T vertex : adjacencies.keySet()) {
-            List<T> neighbours = new ArrayList<>();
-            neighbours.addAll(adjacencies.get(vertex));
-            listAdjacencies.put(vertex, neighbours);
+
+    Comparator<Map.Entry<T, Set<T>>> increasingDegree = Comparator.comparingInt((Map.Entry<T, Set<T>> o1) -> o1.getValue().size());
+    Comparator<Map.Entry<T, Set<T>>> decreasingDegree = Comparator.comparingInt((Map.Entry<T, Set<T>> o1) -> o1.getValue().size()).reversed();
+
+    private Map<T, Set<T>> sortByValue(Comparator<Map.Entry<T, Set<T>>> entryComparator) {
+        //if(sortedMap !=null) return sortedMap;
+        List<Map.Entry<T, Set<T>>> list = new LinkedList<>(adjacencies.entrySet());
+
+        Collections.sort(list, entryComparator);
+
+        sortedMap = new LinkedHashMap<>();
+        for (Map.Entry<T, Set<T>> entry : list) {
+            sortedMap.put(entry.getKey(), entry.getValue());
         }
-        return listAdjacencies;
+        return sortedMap;
+    }
+
+    public Graph<T> sortByIncreasingDegree() {
+        Graph<T> graph = new Graph(edges, sortByValue(increasingDegree));
+        return graph;
+    }
+
+    public Graph<T> sortByDecreasingDegree() {
+        Graph<T> graph = new Graph(edges, sortByValue(decreasingDegree));
+        return graph;
     }
 
     public double meanLocalClustering() {
-        if (meanLocalClustering > 0) return meanLocalClustering;
-        for (List<T> neighbours : listAdjacencies().values()) {
-
+        double meanLocalClustering = 0;
+        for (Set<T> neighbourSet : adjacencies.values()) {
+            List<T> neighbours = new ArrayList<>(neighbourSet);
 
             int connectedNeighbours = 0;
             int neighbourPairs = 0;
             if (neighbours.size() < 2) continue;
 
             List<Set<T>> neighboursOfNeighbours = new ArrayList<>();
-            for(int i=0; i<neighbours.size(); i++) neighboursOfNeighbours.add(adjacencies.get(neighbours.get(i)));
+            for (int i = 0; i < neighbours.size() - 1; i++)
+                neighboursOfNeighbours.add(adjacencies.get(neighbours.get(i)));
 
             for (int i = 0; i < neighbours.size() - 1; i++) {
                 for (int j = i + 1; j < neighbours.size(); j++) {
@@ -72,47 +113,132 @@ public class Graph<T> {
             }
             meanLocalClustering += (double) connectedNeighbours / neighbourPairs;
         }
-        return meanLocalClustering;
+        return meanLocalClustering / getnVertices();
     }
-
-    /*public double meanLocalClusteringIterator() {
-        if (meanLocalClustering > 0) return meanLocalClustering;
-        for (Set<T> neighbours : adjacencies().values()) {
-
-
-            int connectedNeighbours = 0;
-            int neighbourPairs = 0;
-            if (neighbours.size() < 2) continue;
-
-            Set<Set<T>> neighboursOfNeighbours = new HashSet<>();
-
-            boolean before=true;
-            for (T neighbour: neighbours) {
-                Iterator<T> iterator = neighbours.iterator();
-                while(iterator.hasNext()) {
-                    if(before && iterator.next().equals(neighbour)) before=false;
-                    else{
-                        if (neighboursOfNeighbours.get(neighbour).contains(neighbours.get(j))) connectedNeighbours++;
-                        neighbourPairs++;
-                    }
-
-                    if (neighboursOfNeighbours.get(i).contains(neighbours.get(j))) connectedNeighbours++;
-                    neighbourPairs++;
-                }
-            }
-            meanLocalClustering += (double) connectedNeighbours / neighbourPairs;
-        }
-        return meanLocalClustering;
-    }*/
-
 
     @Override
     public String toString() {
         return "Lab3.Graph{" +
-                "vertices=" + vertices +
-                ", edges=" + edges +
+                "vertices=" + getnVertices() +
+                ", edges=" + getnEdges() +
                 ", adjacencies=" + adjacencies +
                 '}';
     }
-}
 
+    private void addEdge(T vertex, T neighbour) {
+        addDirectedEdge(vertex, neighbour);
+        addDirectedEdge(neighbour, vertex);
+    }
+
+    private void addDirectedEdge(T vertex, T neighbour) {
+        Set<T> neighV = adjacencies.get(vertex);
+        if (neighV == null) {
+            Set<T> neighbours = new HashSet<>();
+            neighbours.add(neighbour);
+            adjacencies.put(vertex, neighbours);
+        } else {
+            if (!neighV.contains(neighbour)) {
+                neighV.add(neighbour);
+            }
+        }
+    }
+
+    public Set<T> getNeighbours(T vertex) {
+        Set<T> neighbours = adjacencies.get(vertex);
+        if (neighbours == null) return new HashSet<>();
+        return neighbours;
+    }
+
+    public Graph<T> generateSwitchingGraph(int Q) {
+        Graph<T> switchedGraph = new Graph<>(edges, adjacencies);
+
+        int failures = 0;
+        List<Edge<T>> switchedEdges = new ArrayList<>();
+        switchedEdges.addAll(switchedGraph.getEdges());
+
+
+        for (int i = 0; i < Q * switchedGraph.getnEdges(); i++) {
+
+            int direction1 = ThreadLocalRandom.current().nextInt(0, 2);
+            int direction2 = ThreadLocalRandom.current().nextInt(0, 2);
+            int rand1 = ThreadLocalRandom.current().nextInt(0, switchedGraph.getnEdges());
+            int rand2 = ThreadLocalRandom.current().nextInt(0, switchedGraph.getnEdges());
+
+            Edge<T> e1 = switchedEdges.get(rand1);
+            Edge<T> e2 = switchedEdges.get(rand2);
+
+
+            List<T> vertices = new ArrayList<>();
+            selectDirection(vertices, direction1, e1);
+            selectDirection(vertices, direction2, e2);
+
+
+            Set<T> s = new HashSet<>(vertices);
+            if (s.size() != vertices.size()) {
+                failures++;
+                continue;
+            }
+
+            Collection<T> neighbours0 = switchedGraph.getNeighbours(vertices.get(0));
+            if (neighbours0.contains(vertices.get(3))) {
+                failures++;
+                continue;
+            }
+
+            Collection<T> neighbours1 = switchedGraph.getNeighbours(vertices.get(1));
+            if (neighbours1.contains(vertices.get(2))) {
+                failures++;
+                continue;
+            }
+
+
+            Set<T> neighbours2 = switchedGraph.getNeighbours(vertices.get(2));
+            Set<T> neighbours3 = switchedGraph.getNeighbours(vertices.get(3));
+
+            neighbours0.remove(vertices.get(1));
+            neighbours1.remove(vertices.get(0));
+            neighbours2.remove(vertices.get(3));
+            neighbours3.remove(vertices.get(2));
+
+
+            neighbours0.add(vertices.get(3));
+            neighbours3.add(vertices.get(0));
+            neighbours1.add(vertices.get(2));
+            neighbours2.add(vertices.get(1));
+
+
+            switchedEdges.set(rand1, new Edge<>(vertices.get(0), vertices.get(3)));
+            switchedEdges.set(rand2, new Edge<>(vertices.get(1), vertices.get(2)));
+        }
+
+        //System.out.println(Q * switchedGraph.getnEdges() + " " + failures);
+        return switchedGraph;
+    }
+
+    private void selectDirection(List<T> vertices, int direction, Edge<T> e) {
+        if (direction == 0) {
+            vertices.add(e.getStart());
+            vertices.add(e.getEnd());
+        } else {
+            vertices.add(e.getEnd());
+            vertices.add(e.getStart());
+        }
+    }
+
+    public Graph<Integer> generateErdosRenyiGraph() {
+        Graph<Integer> graph = new Graph<>();
+        int i = 0;
+        while (i < getnEdges()) {
+            int rand1 = ThreadLocalRandom.current().nextInt(0, getnVertices());
+            int rand2 = ThreadLocalRandom.current().nextInt(0, getnVertices());
+            Set<Integer> neighbours = graph.getNeighbours(rand1);
+            if (!neighbours.contains(rand2)) {
+                graph.addEdge(rand1, rand2);
+                i++;
+            }
+        }
+        return graph;
+    }
+
+
+}
