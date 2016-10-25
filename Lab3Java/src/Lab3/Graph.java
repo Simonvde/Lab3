@@ -8,8 +8,8 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 
 //T should be a primitive type!! (especially: Copy should be a deep copy).
-public class Graph<T> {
-    private Map<T, Set<T>> adjacencies = new LinkedHashMap<>();
+public class Graph<T extends Comparable<T>> {
+    public Map<T, Set<T>> adjacencies = new LinkedHashMap<>();
 
     private Set<Edge<T>> edges;
 
@@ -61,13 +61,18 @@ public class Graph<T> {
         return degreeSeq;
     }
 
-    private Map<T, Set<T>> sortedMap;
-
-    Comparator<Map.Entry<T, Set<T>>> entryComparator = (o1, o2) -> (o1.getValue().size() - o2.getValue().size());
-
-
     Comparator<Map.Entry<T, Set<T>>> increasingDegree = Comparator.comparingInt((Map.Entry<T, Set<T>> o1) -> o1.getValue().size());
     Comparator<Map.Entry<T, Set<T>>> decreasingDegree = Comparator.comparingInt((Map.Entry<T, Set<T>> o1) -> o1.getValue().size()).reversed();
+    Comparator<Map.Entry<T, Set<T>>> inputSort = Comparator.comparing((Map.Entry<T, Set<T>> o1) -> o1.getKey());
+
+    //Random comparator based on Hashcode.
+    private Comparator<Map.Entry<T, Set<T>>> randomSort() {
+        ThreadLocalRandom r = ThreadLocalRandom.current();
+        int x = r.nextInt(), y = r.nextInt(), z = r.nextInt();
+        return Comparator.comparingInt((Map.Entry<T,Set<T>> s)->s.getKey().hashCode()^x)
+                .thenComparingInt(s->s.getValue().hashCode()^y)
+                .thenComparing(s->s.getValue().size()^z);
+    }
 
     private Map<T, Set<T>> sortByValue(Comparator<Map.Entry<T, Set<T>>> entryComparator) {
         //if(sortedMap !=null) return sortedMap;
@@ -75,7 +80,7 @@ public class Graph<T> {
 
         Collections.sort(list, entryComparator);
 
-        sortedMap = new LinkedHashMap<>();
+        Map<T, Set<T>> sortedMap = new LinkedHashMap<>();
         for (Map.Entry<T, Set<T>> entry : list) {
             sortedMap.put(entry.getKey(), entry.getValue());
         }
@@ -91,29 +96,69 @@ public class Graph<T> {
         Graph<T> graph = new Graph(edges, sortByValue(decreasingDegree));
         return graph;
     }
+    public Graph<T> sortByInput() {
+        Graph<T> graph = new Graph(edges, sortByValue(inputSort));
+        return graph;
+    }
+    public Graph<T> sortRandom() {
+        Graph<T> graph = new Graph(edges, sortByValue(randomSort()));
+        return graph;
+    }
 
     public double meanLocalClustering() {
         double meanLocalClustering = 0;
         for (Set<T> neighbourSet : adjacencies.values()) {
-            List<T> neighbours = new ArrayList<>(neighbourSet);
+            if (neighbourSet.size() < 2) continue;
 
-            int connectedNeighbours = 0;
-            int neighbourPairs = 0;
-            if (neighbours.size() < 2) continue;
-
-            List<Set<T>> neighboursOfNeighbours = new ArrayList<>();
-            for (int i = 0; i < neighbours.size() - 1; i++)
-                neighboursOfNeighbours.add(adjacencies.get(neighbours.get(i)));
-
-            for (int i = 0; i < neighbours.size() - 1; i++) {
-                for (int j = i + 1; j < neighbours.size(); j++) {
-                    if (neighboursOfNeighbours.get(i).contains(neighbours.get(j))) connectedNeighbours++;
-                    neighbourPairs++;
-                }
-            }
-            meanLocalClustering += (double) connectedNeighbours / neighbourPairs;
+            meanLocalClustering += getVertexContribution(neighbourSet);
         }
         return meanLocalClustering / getnVertices();
+    }
+
+    /*
+    @Return true if the mean local clustering of this graph is greater than the given clustering.
+     */
+    public boolean meanLocalClustering(double hypothesisClustering) {
+        double meanLocalClustering = 0;
+        int nVert = getnVertices();
+        int verticesLeft = nVert;
+
+        for (Set<T> neighbourSet : adjacencies.values()) {
+            if (neighbourSet.size() < 2) continue;
+
+            double vertexContribution = getVertexContribution(neighbourSet);
+            meanLocalClustering += vertexContribution;
+
+            verticesLeft--;
+
+            if (meanLocalClustering / nVert > hypothesisClustering) {
+                return true;
+            }
+            if ((meanLocalClustering + verticesLeft) / nVert < hypothesisClustering) {
+                return false;
+            }
+        }
+        return meanLocalClustering/nVert > hypothesisClustering;
+    }
+
+    private double getVertexContribution(Set<T> neighbourSet) {
+        List<T> neighbours = new ArrayList<>(neighbourSet);
+
+        int connectedNeighbours = 0;
+        int neighbourPairs = 0;
+
+        List<Set<T>> neighboursOfNeighbours = new ArrayList<>();
+        for (int i = 0; i < neighbours.size() - 1; i++)
+            neighboursOfNeighbours.add(adjacencies.get(neighbours.get(i)));
+
+        for (int i = 0; i < neighbours.size() - 1; i++) {
+            for (int j = i + 1; j < neighbours.size(); j++) {
+                if (neighboursOfNeighbours.get(i).contains(neighbours.get(j))) connectedNeighbours++;
+                neighbourPairs++;
+            }
+        }
+
+        return (double) connectedNeighbours / neighbourPairs;
     }
 
     @Override
@@ -179,13 +224,13 @@ public class Graph<T> {
                 continue;
             }
 
-            Collection<T> neighbours0 = switchedGraph.getNeighbours(vertices.get(0));
+            Set<T> neighbours0 = switchedGraph.getNeighbours(vertices.get(0));
             if (neighbours0.contains(vertices.get(3))) {
                 failures++;
                 continue;
             }
 
-            Collection<T> neighbours1 = switchedGraph.getNeighbours(vertices.get(1));
+            Set<T> neighbours1 = switchedGraph.getNeighbours(vertices.get(1));
             if (neighbours1.contains(vertices.get(2))) {
                 failures++;
                 continue;
