@@ -23,6 +23,7 @@
 \usepackage[T1]{fontenc} % Use 8-bit encoding that has 256 glyphs
 %\usepackage{fourier} % Use the Adobe Utopia font for the document - comment this line to return to the LaTeX default
 \usepackage[english]{babel} % English language/hyphenation
+\usepackage[utf8]{inputenc}  %allows non-English characters
 \usepackage{amsmath,amsfonts,amsthm} % Math packages
 
 \usepackage{sectsty} % Allows customizing section commands
@@ -39,6 +40,8 @@
 \renewcommand{\footrulewidth}{0pt} % Remove footer underlines
 \setlength{\headheight}{13.6pt} % Customize the height of the header
 
+
+
 %\numberwithin{equation}{section} % Number equations within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
 %\numberwithin{figure}{section} % Number figures within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
 %\numberwithin{table}{section} % Number tables within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
@@ -51,6 +54,9 @@
 \graphicspath{{../images/}}
 
 
+%shortcuts for typing variance and expectation 
+\newcommand{\E}{\mathrm{E}}
+\newcommand{\Var}{\mathrm{Var}}
 
 %----------------------------------------------------------------------------------------
 %	TITLE SECTION
@@ -62,15 +68,16 @@
 \normalfont \normalsize 
 \textsc{UPC} \\ [25pt] % Your university, school and/or department name(s)
 \horrule{0.5pt} \\[0.4cm] % Thin top horizontal rule
-\huge Lab1: Introduction to igraph \\ % The assignment title
+\huge Lab3: Significance of Network Metrics \\ % The assignment title
 \horrule{2pt} \\[0.5cm] % Thick bottom horizontal rule
 }
 
-\author{Simon Van den Eynde} % Your name
+\author{Simon Van den Eynde\\ Martí Renedo Mirambell} % Your name
 
 \date{\normalsize\today} % Today's date or a custom date
 
 \begin{document}
+
 
 \maketitle % Print the title
 
@@ -87,6 +94,17 @@
 \section{Discussion}
 
 \section{Methods}
+
+\subsection{Analytical estimation of the $p$-value}
+\subsubsection{Erdös-Rényi Graph}
+Given our original graph with $N$ vertices and $E$ edges, the Erdös-Rényi graph has the same size and order but with its edges randomized.  Of the two possible Erdös-Renyi models, we will use $G(N,p)$ where $p$ will be such that the expected number of edges is $E$ (which is $p=\frac{E}{\binom{N}{2}}$). This has the advantage that $X_j$ the random variables that for every possible vertex indicate wether it exists ($X_j$=1) or not ($X_j$=0) are independent, which will be very useful later on. When working with large values of $N$ and $E$ (such as those we study in this lab session), the models $G(N,E)$ and $G(N,p)$ should give very similar random graphs. 
+For $X_j$ where $j$ is the index of any vertex, we calculate its expectation and variance: 
+$$\E[X_j]=0\cdot(1-p)+1\cdot p=p$$
+$$\Var(X_j)=\E[X^2]-(\E[X])^2=p-p^2$$
+
+Given a vertex $v$ of the graph, it can have $N-1$ neighbours (each with probability $p$), which results in $\binom{N-1}{2}$ possible pairs of neighbours. The expected number of pairs. This gives an expected number of pairs of neighbours $p^2\binom{N-1}{2}$. We will need to work with
+
+
 
 
 
