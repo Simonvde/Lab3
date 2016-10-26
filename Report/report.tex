@@ -87,7 +87,7 @@
 %----------------------------------------------------------------------------------------
 
 \section{Introduction}
-
+In this session we study the significance of the mean local clustering coefficient in syntactic dependency networks obtained from different languages. To test the significance of this metric, we will compare its values on our networks to those in two null models: the Erdös-Renyi graph and a random graph preserving the original degree sequence obtained with the switching model.  We will estimate the corresponding $p$-values both by generating a large enough sample of each of the random networks and through analytical work.
 
 \section{Results}
 
@@ -99,7 +99,7 @@
 \begin{table}[]
 \centering
 \caption{Summary of the properties of the degree sequences. $N$ is the number of vertices of the network, $E$ is the number of edges, $\langle k\rangle=2E/N$ is the mean degree and $\delta=2E/(N(N-1))$ is the network density of edges.}
-\label{table1l}
+\label{table1}
 \begin{tabular}{l|llll}
 Language	& $N$		& $E$		& $\langle k\rangle$	& $\delta$ \\ \hline
 Arabic 	& 21532	&  68767 	&  6,4 			& 3,0e-04 \\ 
@@ -129,7 +129,7 @@ Language		& $C_{WS}$		& $p$-value (binomial) 	& $p$-value (switching) \\ \hline
 
 
 \section{Discussion}
-
+As we can see in table \ref{table2}, the results of the clustering coefficient of all languages are reasonably large for such sparse networks. In comparison, the corresponding Erdös-Renyi models have clustering coefficients of around 3 orders of magnitude smaller (both in the analytical and experimental cases). This, combined with the low variance of the metric (which is estimated analytically in \ref{analytical}) gives a $p$-values of 0 for all languages with R's default precision (i.e. it is almost impossible to obtain a higher clustering coefficient generating a random Erdös-Renyi graph with the parameters of our networks).  ****\textit{ add comment about experimental ER results (¿are all p-values also zero, as expected?)}****
 
 
 
@@ -138,7 +138,7 @@ Language		& $C_{WS}$		& $p$-value (binomial) 	& $p$-value (switching) \\ \hline
 
 \section{Methods}
 
-\subsection{Analytical estimation of the $p$-value}
+\subsection{Analytical estimation of the $p$-value} \label{analytical}
 \subsubsection{Erdös-Rényi Graph}
 Given our original graph with $N$ vertices and $E$ edges, the Erdös-Rényi graph has the same size and order but with its edges randomized.  Of the two possible Erdös-Renyi models, we will use $G(N,p)$ where $p$ will be such that the expected number of edges is $E$ (which is $p=\frac{E}{\binom{N}{2}}$). This has the advantage that $X_j$ the random variables that for every possible vertex indicate wether it exists ($X_j$=1) or not ($X_j$=0) are independent, which will be very useful later on. When working with large values of $N$ and $E$ (such as those we study in this lab session), the models $G(N,E)$ and $G(N,p)$ should give very similar random graphs. 
 For $X_j$ where $j$ is the index of any vertex, we calculate its expectation and variance: 
