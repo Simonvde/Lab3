@@ -102,7 +102,14 @@ For $X_j$ where $j$ is the index of any vertex, we calculate its expectation and
 $$\E[X_j]=0\cdot(1-p)+1\cdot p=p$$
 $$\Var(X_j)=\E[X^2]-(\E[X])^2=p-p^2$$
 
-Given a vertex $v$ of the graph, it can have $N-1$ neighbours (each with probability $p$), which results in $\binom{N-1}{2}$ possible pairs of neighbours. The expected number of pairs. This gives an expected number of pairs of neighbours $p^2\binom{N-1}{2}$. We will need to work with
+Given a vertex $v$ of the graph, it can have $N-1$ neighbours (each with probability $p$), which results in $\binom{N-1}{2}$ possible pairs of neighbours. The expected number of pairs. This gives an expected number of pairs of neighbours $n_v=p^2\binom{N-1}{2}$.  Then, we can estimate the local clustering of $v$ by $$C_v\approx \frac{\sum_{j=1}^{\lfloor n_v\rfloor}X_j}{n}.$$
+Since $X_j$ are independent and equally distributed, we can apply the central limit theorem, which states that for a large enough sample size, the distribution of $C_v$ is the normal $N(\E(C_V),\frac{\Var(X_j)}{n})\approx N(C_V^S,\frac{p-p^2}{p\binom{n-1}{2}})=N(C_v^S,\frac{1-p}{p\binom{N-1}{2}})$. 
+
+We can apply the central limit theorem again to $C_{WS}=\frac{1}{N}\sum_{i=1}^NC_i$, wich gives us the distribution of $C_{WS}$: the normal distribution $$N(C_v^S,\frac{1-p}{pN\binom{N-1}{2}})=N(C_v^S,\frac{1-p}{E(N-2)}).$$
+
+
+Note that in the last step we used the equality $pN\binom{N-1}{2}=\frac{EN\binom{N-1}{2}}{\binom{N}{2}}=E(N-2)$.
+
 
 
 
