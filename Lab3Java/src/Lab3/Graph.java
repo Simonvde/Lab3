@@ -141,6 +141,27 @@ public class Graph<T extends Comparable<T>> {
         return meanLocalClustering/nVert > hypothesisClustering;
     }
 
+    public double meanLocalClusteringRandom(double percentage) {
+        double meanLocalClustering = 0;
+        int nVert = getnVertices();
+        int verticesLeft = nVert;
+
+        double M = Math.ceil(nVert*percentage);
+
+        int counter=0;
+
+        for (Set<T> neighbourSet : adjacencies.values()) {
+            if (neighbourSet.size() < 2) continue;
+
+            double vertexContribution = getVertexContribution(neighbourSet);
+            meanLocalClustering += vertexContribution;
+
+            counter++;
+            if(counter>M) break;
+        }
+        return meanLocalClustering/M;
+    }
+
     private double getVertexContribution(Set<T> neighbourSet) {
         List<T> neighbours = new ArrayList<>(neighbourSet);
 
