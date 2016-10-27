@@ -220,8 +220,11 @@ public class Graph<T extends Comparable<T>> {
 
             Set<T> s = new HashSet<>(vertices);
             if (s.size() != vertices.size()) {
-                failures++;
-                continue;
+                if(s.size()==3 && (vertices.get(0)==vertices.get(2) || vertices.get(1)==vertices.get(3))){}
+                else {
+                    failures++;
+                    continue;
+                }
             }
 
             Set<T> neighbours0 = switchedGraph.getNeighbours(vertices.get(0));

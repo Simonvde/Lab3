@@ -17,22 +17,59 @@ public class Main {
     }
 
     public void run() {
-        //readLanguages();
+        readLanguages();
 
-        //nonOptimizedClustering(2,3);
+        nonOptimizedClustering(20,10);
 
-        //optimizedClustering(2,3);
+        optimizedClustering(30,15);
+
+        speedTestSorting();
+    }
+
+    public void speedTestSorting(){
+
+        Timer timer = new Timer();
+
+        int repetitions=5;
+        System.out.format("%10s %6s %6s %6s %6s %6s%n","languages","normal","random","increasingDegree","input","decreasingDegree");
+        for (String language : languages) {
+            Graph<String> graph = readGraph("data/" + language + "_syntactic_dependency_network.txt");
+
+            double[] times = new double[repetitions];
+
+            //Run program a few times in advance to make measurements equal.
+            for(int i=0; i<3; i++) mlcCheck(graph,1,1);
+
+            for(int i=0; i<repetitions; i++) {
+
+                timer.end();
+                timer.start();
+                mlcCheck(graph, 1, 1);
+                times[0] += timer.delta();
+                timer.start();
+
+                mlcCheck(graph.sortRandom(), 1, 1);
+                times[1] += timer.delta();
+                timer.start();
+
+                mlcCheck(graph.sortByIncreasingDegree(), 1, 1);
+                times[2] += timer.delta();
+                timer.start();
+
+                mlcCheck(graph.sortByInput(), 1, 1);
+                times[3] += timer.delta();
+                timer.start();
+
+                mlcCheck(graph.sortByDecreasingDegree(), 1, 1);
+                times[4] += timer.delta();
+                timer.start();
+            }
+
+            for(int i=0; i<repetitions; i++) times[i] /=repetitions;
 
 
-
-        Graph<String> graph = readGraph("data/" + "Arabic" + "_syntactic_dependency_network.txt");
-        System.out.println(graph.sortByIncreasingDegree().getDegreeSequence());
-        System.out.println(graph.sortByDecreasingDegree().getDegreeSequence());
-        for(String i : graph.sortByInput().adjacencies.keySet()){
-            System.out.print(i + " ");
+            System.out.format("%10s & %4.2f & %4.2f & %4.2f & %4.2f & %4.2f%n", language, times[0],times[1],times[2],times[3],times[4]);
         }
-        System.out.println(graph.sortRandom().getDegreeSequence());
-
     }
 
     public void optimizedClustering(int T, int Q){
@@ -41,9 +78,9 @@ public class Main {
 
         for (String language : languages) {
             Graph<String> graph = readGraph("data/" + language + "_syntactic_dependency_network.txt");
-            double[] result = mlcCheck(graph, T, Q);
+            double[] result = mlcCheck(graph.sortByIncreasingDegree(), T, Q);
 
-            System.out.format("%10s: %6.4f NHer: %6.4f NHswitching: %6.4f%n", language, result[0], result[1], result[2]);
+            System.out.format("%s & %4.2f & %6.4f & %6.4f%n", language, result[0], result[1], result[2]);
             /*System.out.format("%10s %6d %6d %5.1f %8.1e%n%n", language, graph.getnVertices(), graph.getnEdges(),
                     graph.getMeanDegree(), graph.getNetworkDensity());*/
         }
@@ -85,7 +122,7 @@ public class Main {
             Graph<String> graph = readGraph("data/" + language + "_syntactic_dependency_network.txt");
             double[] result = mlcCheckNonOptim(graph, T, Q);
 
-            System.out.format("%10s: %6.4f NHer: %6.4f NHswitching: %6.4f%n", language, result[0], result[1], result[2]);
+            System.out.format("%10s: %8.6f NHer: %6.4f NHswitching: %6.4f%n", language, result[0], result[1], result[2]);
             /*System.out.format("%10s %6d %6d %5.1f %8.1e%n%n", language, graph.getnVertices(), graph.getnEdges(),
                     graph.getMeanDegree(), graph.getNetworkDensity());*/
         }
