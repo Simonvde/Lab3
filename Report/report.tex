@@ -182,11 +182,11 @@ Turkish & 2,36 & 2,53 & 1,29 & 2,52 & 2,55\\
 
 \section{Discussion}
 \paragraph{Erdös-Renyi}
-As we can see in table \ref{mlcValues}, the results of the clustering coefficient of all languages are reasonably large for such sparse networks. In comparison, the corresponding Erdös-Renyi models have clustering coefficients of around 3 orders of magnitude smaller (both in the analytical and experimental cases). This, combined with the low variance of the metric (which is estimated analytically in \ref{analytical}) gives a $p$-values of 0 for all languages with R's default precision (i.e. it is almost impossible to obtain a higher clustering coefficient generating a random Erdös-Renyi graph with the parameters of our networks). In our experiments, see table~\ref{table2} we also notice that all p-values are $0$.
-These results are as expected, since we knew from the theory classes that the Erdös-Renyi graph has a low clustering.
+As we can see in table \ref{mlcValues}, the results of the clustering coefficient of all languages are reasonably large for such sparse networks. In comparison, the corresponding Erdös-Renyi models have clustering coefficients of around 3 orders of magnitude smaller (both in the analytical and experimental cases). This, combined with the low variance of the metric (which is estimated analytically in \ref{analytical}) gives $p$-values of 0 for all languages with R's default precision (i.e. it is almost impossible to obtain a higher clustering coefficient generating a random Erdös-Renyi graph with the parameters of our networks). In our experiments (see table~\ref{table2}) we also notice that all p-values are $0$.
+These results are as expected, since we knew from the theory classes that the Erdös-Renyi graph has a low clustering coefficient.
 
 \paragraph{Switching}
-We can see in table~\ref{mlcValues} that the mean local clustering values of the switching model are closer to the mean local clustering of the real graph. We notice from table~\ref{table2} that only Chinese is considered large in comparison with his switching model. Arabic is on the border, but with a p-value of $0.2$ we cannot say it has a large clustering. All the other languages have a p-value of $1$ and therefore we cannot say their mean local clustering is high in comparison with the switching model.
+We can see in table~\ref{mlcValues} that the mean local clustering values of the switching model are closer to the mean local clustering of the real graph. We notice from table~\ref{table2} that only Chinese is considered large in comparison with his switching model. Arabic is on the border, but with a p-value of $0.2$ we cannot say it has a large clustering. All the other languages have a p-value of $1$ and therefore we cannot say their mean local clustering is high in comparison with the switching model (actually, in this case a $p$-value of 1 suggests that the $C_{WS}$ of the real network is lower than its value in the switching model with statistical significance).
 
 
 
@@ -194,7 +194,7 @@ We can see in table~\ref{mlcValues} that the mean local clustering values of the
 
 \section{Methods}
 
-\subsection{Analytical estimation of the $p$-value} \label{analytical}
+\subsection{Analytical estimation of the $p$-values} \label{analytical}
 \subsubsection{Erdös-Rényi Graph}
 Given our original graph with $N$ vertices and $E$ edges, the Erdös-Rényi graph has the same size and order but with its edges randomized.  Of the two possible Erdös-Renyi models, we will use $G(N,p)$ where $p$ will be such that the expected number of edges is $E$ (which is $p=\frac{E}{\binom{N}{2}}$). This has the advantage that $X_j$ the random variables that for every possible vertex indicate wether it exists ($X_j$=1) or not ($X_j$=0) are independent, which will be very useful later on. When working with large values of $N$ and $E$ (such as those we study in this lab session), the models $G(N,E)$ and $G(N,p)$ should give very similar random graphs. 
 For $X_j$ where $j$ is the index of any vertex, we calculate its expectation and variance: 
@@ -209,9 +209,10 @@ We can apply the central limit theorem again to $C_{WS}^{ER}=\frac{1}{N}\sum_{i=
 
 Note that in the last step we used the equality $pN\binom{N-1}{2}=\frac{EN\binom{N-1}{2}}{\binom{N}{2}}=E(N-2)$.
 
-Now the p-value of $C_{WS}$, which is given by $p(C_{WS}^{ER}\geq C_{WS})$, can be calculated
+Now the p-value of $C_{WS}$, which is given by $p(C_{WS}^{ER}\geq C_{WS})$, can be calculated easily in R (\texttt{analytical\_pvalues.R}).
 
-\subsection{Code}
+\subsection{Empirical estimation of the $p$-values}
+The implementation of all the methods described in this section was donein Java and can be found in the folder \texttt{Lab3Java}.
 \paragraph{Representation graph}
 For the internal representation of the graph we used a linked hashmap with as keys the nodes and as values the set of neighbours. This allows us to add a sorting on the keys and have amortized constant acces times to the neighbours of a node. Also we keep the nodes in a hashset, so we can lookup if a vertex is contained in the set of neighbours in amortized constant time.
 
@@ -231,11 +232,11 @@ We also check whether $d$ is already a neighbour of $a$ and whether $b$ is alrea
 
 For calculating the p-value in the optimised way, we chose $Q=15$ because it is then larger than the logarithm of the highest amount of edges (Czech language, $~250000, \log{(250000)}=12.5$). Because we do the amount of edges times $Q$ switches (minus the failures), we will, according to the coupon collector problem, probably have switched every edge at least once.
 
-\paragraph{Erd\H{o}s-Renyi model}
+\paragraph{Erdös-Renyi model}
 We simply take two random vertices and check if they are already connected, if not add a connection. In this way we connect as much edges as we have to connect.
 
 \paragraph{Sparse graphs}
-Both the Erd\H{o}s-Renyi model and the switching do not have many failures (switching model around one quarter, depending on the language). This is because the graphs we're dealing are sparse. Doing this analysis on graphs that are nearly complete would be a lot harder.
+Both the Erdös-Renyi model and the switching do not have many failures (switching model around one quarter, depending on the language). This is because the graphs we're dealing are sparse. Doing this analysis on graphs that are nearly complete would be a lot harder.
 
 
 
